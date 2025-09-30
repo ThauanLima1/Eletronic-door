@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyChMG3yyK6WXnLhc-QgoL9CYcA62APqyIg",
@@ -23,21 +23,21 @@ const texto = document.getElementById("btnTexto");
 document.getElementById("loginForm").addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const username = document.getElementById("username").value;
-  const pin = document.getElementById("pin").value;
+  const user = document.getElementById("user").value;
+  const senha = document.getElementById("senha").value;
 
   const regexUsername = /^[CRUD\d]{4}$/;
   const regexPin = /^\d{4}$/;
 
-  if (username && regexUsername.test(username) && regexPin.test(pin)) {
+  if (user && regexUsername.test(user) && regexPin.test(senha)) {
     try {
-      const snapshot = await get(child(dbRef, "user"));
+      const snapshot = await get(child(dbRef, "users"));
       let existe = false;
 
       if (snapshot.exists()) {
         const dados = snapshot.val();
         for (let key in dados) {
-          if (dados[key].username === username) {
+          if (dados[key].user === user) {
             existe = true;
             break;
           }
@@ -49,11 +49,11 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         botao.classList.add("erro");
         icone.className = "fas fa-times";
         texto.textContent = "Usuário já existe";
-        document.getElementById("mensagem").textContent = `❌ O usuário "${username}" já está cadastrado.`;
+        document.getElementById("mensagem").textContent = `O usuário "${user}" já está cadastrado.`;
       } else {
-        push(ref(database, "user"), {
-          username: username,
-          pin: pin,
+        set(ref(database, "users/" + user), {
+          user: user,
+          senha: senha,
           timestamp: new Date().toISOString(),
         });
 
@@ -61,7 +61,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         botao.classList.add("sucesso");
         icone.className = "fas fa-check";
         texto.textContent = "Cadastrado";
-        document.getElementById("mensagem").textContent = `✅ Usuário "${username}" cadastrado com sucesso!`;
+        document.getElementById("mensagem").textContent = `Usuário "${user}" cadastrado com sucesso!`;
       }
 
       setTimeout(() => {
@@ -77,7 +77,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     botao.classList.add("erro");
     icone.className = "fas fa-times";
     texto.textContent = "Erro";
-    document.getElementById("mensagem").textContent = `❌ Dados inválidos. Verifique o usuário e o PIN.`;
+    document.getElementById("mensagem").textContent = `Dados inválidos. Verifique o usuário e o senha.`;
 
     setTimeout(() => {
       botao.classList.remove("sucesso", "erro");
